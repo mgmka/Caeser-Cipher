@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Caesar Cipher</title>
+
+    <link href="static/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style type="text/css">
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .mar {
+            margin-bottom: 5px;
+        }
+        .alert{
+            margin-bottom: 0;
+        }
+    </style>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+        google.charts.load('current', {packages: ['corechart', 'bar']});
+        google.charts.setOnLoadCallback(drawColColors);
+
+        var chart, chart1;
+
+        function drawColColors() {
+            var data = google.visualization.arrayToDataTable([
+                ['Element', 'Density'],
+                ['a', 8.167],
+                ['b', 1.492],
+                ['c', 2.782],
+                ['d', 4.253],
+                ['e', 12.702],
+                ['f', 2.228],
+                ['g', 2.015],
+                ['h', 6.094],
+                ['i', 6.966],
+                ['j', 0.153],
+                ['k', 0.772],
+                ['l', 4.025],
+                ['m', 2.406],
+                ['n', 6.749],
+                ['o', 7.507],
+                ['p', 1.929],
+                ['q', 0.095],
+                ['r', 5.987],
+                ['s', 6.327],
+                ['t', 9.056],
+                ['u', 2.758],
+                ['v', 0.978],
+                ['w', 2.361],
+                ['x', 0.150],
+                ['y', 1.974],
+                ['z', 0.074]
+            ]);
+
+            var options = {
+                title: 'Relative frequencies of letters in the English language',
+                hAxis: {
+                    title: 'Letters'
+                },
+                vAxis: {
+                    title: 'Frequencies'
+                }
+            };
+
+            chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+        }
+    </script>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row mar head">
+        <h2 class="col-md-offset-1">Caeser Cipher</h2>
+</div>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            Enter text here
+            <textarea id="in_text" class="form-control" rows="7"></textarea></div>
+        <div class="col-md-1">
+            Shift
+            <select id="offset" class="form-control mar">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10</option>
+                <option>11</option>
+                <option>12</option>
+                <option>13</option>
+                <option>14</option>
+                <option>15</option>
+                <option>16</option>
+                <option>17</option>
+                <option>18</option>
+                <option>19</option>
+                <option>20</option>
+                <option>21</option>
+                <option>22</option>
+                <option>23</option>
+                <option>24</option>
+                <option>25</option>
+            </select>
+            <button type="button" id="encrypt" class="btn btn-default mar">Encrypt</button>
+            <button type="button" id="decrypt" class="btn btn-default mar">Decrypt</button>
+            <button type="button" id="swap" class="btn btn-default mar"><--------</button>
+        </div>
+
+        <div class="col-md-4">
+            Result
+            <textarea id="out_text" class="form-control" readonly rows="7"></textarea></div>
+    </div>
+
+    <div class="alert alert-success alert-dismissible fade in col-md-9 col-md-offset-1" id="alert" role="alert">
+        <button type="button" class="close" data-hide="alert" aria-label="Close"><span aria-hidden="true">×</span>
+        </button>
+        <p id="message"></p>
+    </div>
+
+
+    <div class="row mar">
+        <div class="col-md-9 col-md-offset-1">
+            <div id="chart_div1"></div>
+        </div>
+    </div>
+    <div class="row mar">
+        <div class="col-md-9 col-md-offset-1">
+            <div id="chart_div"></div>
+        </div>
+    </div>
+
+
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="static/bootstrap.min.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $(function () {
+            $("[data-hide]").on("click", function () {
+                $(this).closest("." + $(this).attr("data-hide")).hide();
+            });
+        });
+        $("#alert").hide();
+        $("#encrypt").click(function () {
+            $.post("/encrypt_decrypt/", {
+                text: $('#in_text').val(),
+                offset: $('#offset').val(),
+                mode: 1
+            }, onEncryptSuccess);
+        });
+        $("#swap").click(function () {
+            //noinspection JSJQueryEfficiency
+            $('#in_text').val($('#out_text').val());
+            //noinspection JSJQueryEfficiency
+            $('#out_text').val('');
+            $("#in_text").trigger("input");
+        });
+        function onEncryptSuccess(data) {
+            var result = JSON.parse(data);
+            $('#out_text').val(result.result_text);
+        }
+
+        $("#decrypt").click(function () {
+            $.post("/encrypt_decrypt/", {
+                text: $('#in_text').val(),
+                offset: $('#offset').val(),
+                mode: 2
+            }, onDecryptSuccess);
+        });
+        function onDecryptSuccess(data) {
+            var result = JSON.parse(data);
+            $('#out_text').val(result.result_text);
+        }
+
+        $('#in_text').on('input', function (e) {
+            $.post("/frequencies/", {
+                text: $('#in_text').val()
+            }, onFrequenciesSuccess);
+        });
+        function onFrequenciesSuccess(data) {
+            var result = JSON.parse(data);
+
+            var options = {
+                title: 'Relative frequencies of letters in the entered text',
+                hAxis: {
+                    title: 'Letters'
+                },
+                vAxis: {
+                    title: 'Frequencies'
+                }
+            };
+            data = google.visualization.arrayToDataTable(result.freq);
+            chart1 = new google.visualization.ColumnChart(document.getElementById('chart_div1'));
+            chart1.draw(data, options);
+            $("#alert").show();
+            if (result.crack == 26){
+                $('#message').text("It seems it's not encrypted English text");
+            }else{
+                $('#message').text("Try to decrypt with shit - " + result.crack);
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
